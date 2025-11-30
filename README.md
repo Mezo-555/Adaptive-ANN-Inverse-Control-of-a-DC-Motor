@@ -10,32 +10,16 @@ The project demonstrates a complex co-simulation workflow:
 4.  **Real-Time Control:** Deploying the trained Python model back into Simulink to control the motor in real-time.
 
 ## ⚙️ System Dynamics
-The system is modeled as a DC Motor coupled with a fan/pump load.
+The system under control is a DC Motor coupled with a fan/pump load. It is defined by the following differential equations:
 
-### 1. Differential Equations
-* **Electrical:** $L \frac{di(t)}{dt} = v(t) - R i(t) - K_m \omega(t)$
-* **Mechanical:** $J \frac{d\omega(t)}{dt} = K_m i(t) - B \omega(t) - \mu \omega^2(t) \cdot \text{sign}(\omega(t))$
+### 1. Electrical Subsystem
+$$L \frac{di(t)}{dt} = v(t) - R i(t) - K_m \omega(t)$$
 
-### 2. State-Space Representation
-The system is implemented in Simulink using the state-space form $\dot{X} = AX + BU + F(X)$:
-
-* **State Vector:** $X = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} = \begin{bmatrix} i(t) \\ \omega(t) \end{bmatrix}$ (Current, Speed)
-* **Input:** $u = v(t)$ (Voltage)
-* **Output:** $y = \omega(t)$ (Speed)
-
-$$
-\begin{bmatrix} \dot{x}_1 \\ \dot{x}_2 \end{bmatrix} = 
-\begin{bmatrix} -\frac{R}{L} & -\frac{K_m}{L} \\ \frac{K_m}{J} & -\frac{B}{J} \end{bmatrix} 
-\begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + 
-\begin{bmatrix} \frac{1}{L} \\ 0 \end{bmatrix} u + 
-\begin{bmatrix} 0 \\ -\frac{\mu x_2^2 \cdot \text{sign}(x_2)}{J} \end{bmatrix}
-$$
-
-**Output Equation:**
-$$y = \begin{bmatrix} 0 & 1 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}$$
+### 2. Mechanical Subsystem
+$$J \frac{d\omega(t)}{dt} = K_m i(t) - B \omega(t) - \mu \omega^2(t) \cdot \text{sign}(\omega(t))$$
 
 **Key Parameters:**
-* **Nonlinearity:** The term $F(X)$ containing $\mu \omega^2$ represents the aerodynamic drag, making the system nonlinear.
+* **Nonlinearity:** The term $\mu \omega^2(t)$ represents the aerodynamic drag of the fan, making the system nonlinear and difficult for standard linear controllers.
 * **Inertia ($J$):** 0.068 Kg.m²
 * **Inductance ($L$):** 0.055 H
 
